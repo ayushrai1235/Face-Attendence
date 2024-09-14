@@ -3,6 +3,8 @@ import pickle
 import cv2
 import os
 
+import face_recognition
+
 cap = cv2.VideoCapture(0)
 cap.set(3,640)
 cap.set(4,480)
@@ -22,14 +24,16 @@ encodeListKnownwithname = pickle.load(file)
 encodeListKnown, studentName = encodeListKnownwithname
 # print(studentName)
 
-liveencodingknown
+
 
 while True:
     success, img = cap.read()
 
+
     imgs = cv2.resize(img,(0,0),None,0.25, 0.25)
     imgs = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
+    facecur = face_recognition.face_locations(imgs)
 
     imgbg[162:162+480,55:55+640] = img
     imgbg[44:44+633,808:808+414] = imgModelist[0]
