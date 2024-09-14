@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
-cred = credentials.Certificate("serviceAccountkey.json")
+cred = credentials.Certificate("serviceAccountkey (2).json")
 firebase_admin.initialize_app(cred,{
     'databaseURL':"https://face-attendance-realtime-bc190-default-rtdb.firebaseio.com/"
 })

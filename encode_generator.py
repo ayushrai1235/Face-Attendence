@@ -7,7 +7,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import storage
 
-cred = credentials.Certificate("serviceAccountkey.json")
+cred = credentials.Certificate("serviceAccountkey (2).json")
 firebase_admin.initialize_app(cred,{
     'databaseURL':"https://face-attendance-realtime-bc190-default-rtdb.firebaseio.com/",
     'storageBucket': "face-attendance-realtime-bc190.appspot.com"
@@ -23,7 +23,6 @@ for path in pathlist:
     imglist.append(cv2.imread(os.path.join(folderpath,path)))
     studentName.append((os.path.splitext(path)[0]))
 
-#storage ke liye
     filename = (f'{folderpath}/{path}')
     bucket = storage.bucket()
     blob = bucket.blob(filename)
@@ -32,7 +31,6 @@ for path in pathlist:
 
 
 print(studentName)
-
 def findEncoding(imageslist):
     encodelist = []
     for img in imageslist:

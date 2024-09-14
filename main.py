@@ -8,12 +8,16 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import storage
+import numpy as np
+from datetime import datetime
 
-cred = credentials.Certificate("serviceAccountkey.json")
+cred = credentials.Certificate("serviceAccountkey (2).json")
 firebase_admin.initialize_app(cred,{
     'databaseURL':"https://face-attendance-realtime-bc190-default-rtdb.firebaseio.com/",
     'storageBucket': "face-attendance-realtime-bc190.appspot.com"
 })
+
+bucket = storage.bucket()
 
 
 cap = cv2.VideoCapture(0)
@@ -26,6 +30,8 @@ imgbg = cv2.imread('Resources/background.png')
 foldermodepath = 'Resources/Modes'
 modepathlist = os.listdir(foldermodepath)
 imgModelist = []
+imgstud = []
+
 for path in modepathlist:
     imgModelist.append(cv2.imread(os.path.join(foldermodepath,path)))
 
@@ -81,21 +87,63 @@ while True:
     if count!= 0:
 
         if count == 1:
+
             studentInfo = db.reference(f'Students/{name}').get()
             print(studentInfo)
+            #getting images from database
+            blob = bucket.get_blob(f'Images/{name}.png')
+            array = np.frombuffer(blob.download_as_string(), np.uint8)
+            imgstud = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
+            #Update data for attendence
+            datetimeobj = datetime.strptime(studentInfo['last_attendence_time'],
+                                           "%Y-%m-%d %H:%M:%S")
+            secondselaspes = (datetime.now()-datetimeobj).total_seconds()
+            print(secondselaspes)
+            if secondselaspes > 60:
+                ref = db.reference(f'Students/{name}')
+                studentInfo['total_attendance'] += 1
+                ref.child('total_attendance').set(studentInfo['total_attendance'])
+                ref.child('last_attendence_time').set(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            else:
+                modeType = 3
+                count = 0
+                imgbg[44:44 + 633, 808:808 + 414] = imgModelist[modeType]
 
-        cv2.putText(imgbg,str(studentInfo['total_attendance']),(861,125),
-                    cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),1)
-        cv2.putText(imgbg, str(studentInfo['name']), (808, 445),
-                    cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
-        cv2.putText(imgbg, str(studentInfo['major']), (1006,550),
-                    cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
-        cv2.putText(imgbg, str(studentInfo['id']), (1006, 493),
-                    cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
+        if modeType != 3:
 
+            if 10<count<20:
+                modeType = 2
+
+            imgbg[44:44 + 633, 808:808 + 414] = imgModelist[modeType]
+
+            if count<=10:
+
+                cv2.putText(imgbg,str(studentInfo['total_attendance']),(861,125),
+                            cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),1)
+                cv2.putText(imgbg, str(studentInfo['major']), (1006,550),
+                            cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+                cv2.putText(imgbg, str(studentInfo['id']), (1006, 493),
+                            cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
+                cv2.putText(imgbg, str(studentInfo['year']), (1025, 625),
+                            cv2.FONT_HERSHEY_COMPLEX, 0.6, (100,100,100), 1)
+                cv2.putText(imgbg, str(studentInfo['starting_year']), (1125, 625),
+                            cv2.FONT_HERSHEY_COMPLEX, 0.6, (100,100,100), 1)
+
+                (w,h), _ = cv2.getTextSize(studentInfo['name'], cv2.FONT_HERSHEY_COMPLEX, 1,1)
+                offset = (414 - w) // 2
+                cv2.putText(imgbg, str(studentInfo['name']), (808 + offset, 445),
+                            cv2.FONT_HERSHEY_COMPLEX, 1, (55, 55, 55), 1)
+
+                imgbg[175:175+216,909:909+216] = imgstud
 
         count+=1
 
+        if count>=20:
+            count = 0
+            modeType = 0
+            studentInfo = []
+            imgstud = []
+            imgbg[44:44 + 633, 808:808 + 414] = imgModelist[modeType]
 
 
     cv2.imshow("face attendance", imgbg)

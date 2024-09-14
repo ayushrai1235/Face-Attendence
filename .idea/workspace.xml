@@ -5,15 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="91b51e2a-7885-4c73-8147-dbff36194134" name="Changes" comment="face attendance system">
-      <change afterPath="$PROJECT_DIR$/AddDatatodatabase.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Images/Emily.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Images/Hrithik_roshan.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/serviceAccountkey.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AddDatatodatabase.py" beforeDir="false" afterPath="$PROJECT_DIR$/AddDatatodatabase.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Encodefile.p" beforeDir="false" afterPath="$PROJECT_DIR$/Encodefile.p" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Images/Ema_Watson.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Ayush_rai.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Hrithik_roshan.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/encode_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/encode_generator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serviceAccountkey.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,25 +27,6 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <excluded-from-favorite>
-      <branch-storage>
-        <map>
-          <entry type="LOCAL">
-            <value>
-              <list>
-                <branch-info repo="$PROJECT_DIR$" source="master" />
-                <branch-info repo="$PROJECT_DIR$" source="main" />
-              </list>
-            </value>
-          </entry>
-        </map>
-      </branch-storage>
-    </excluded-from-favorite>
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -72,17 +52,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Python.AddDatatodatabase.executor": "Run",
-    "Python.encode_generator.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.AddDatatodatabase.executor&quot;: &quot;Run&quot;,
+    &quot;Python.encode_generator.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -107,46 +87,10 @@
       <option name="project" value="LOCAL" />
       <updated>1726258470732</updated>
     </task>
-    <task id="LOCAL-00002" summary="face attendance system">
-      <option name="closed" value="true" />
-      <created>1726293079789</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1726293079789</updated>
-    </task>
-    <task id="LOCAL-00003" summary="face attendance system">
-      <option name="closed" value="true" />
-      <created>1726294324425</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1726294324425</updated>
-    </task>
-    <task id="LOCAL-00004" summary="face attendance system">
-      <option name="closed" value="true" />
-      <created>1726305227998</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1726305227998</updated>
-    </task>
-    <option name="localTasksCounter" value="5" />
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="face attendance system" />
     <option name="LAST_COMMIT_MESSAGE" value="face attendance system" />
   </component>
