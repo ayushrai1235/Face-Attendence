@@ -22,6 +22,7 @@ encodeListKnownwithname = pickle.load(file)
 encodeListKnown, studentName = encodeListKnownwithname
 # print(studentName)
 
+liveencodingknown
 
 while True:
     success, img = cap.read()
@@ -31,7 +32,7 @@ while True:
 
 
     imgbg[162:162+480,55:55+640] = img
-    imgbg[44:44+633,808:808+414] = imgModelist[1]
+    imgbg[44:44+633,808:808+414] = imgModelist[0]
 
 
     cv2.imshow("face attendance",imgbg)
