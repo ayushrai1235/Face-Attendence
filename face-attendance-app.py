@@ -7,56 +7,54 @@ import face_recognition
 import firebase_admin
 from firebase_admin import credentials, db, storage
 from datetime import datetime
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFileDialog, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFileDialog, \
+    QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFileDialog, \
+    QMessageBox, QInputDialog
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
 
+
 class FaceAttendanceApp(QMainWindow):
+    imgBackground = cv2.imread('Resources/background.png')
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Face Attendance System")
+        self.setGeometry(100, 100, 1000, 800)
         self.setGeometry(100, 100, 1200, 800)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
-
         self.video_label = QLabel(self)
         self.layout.addWidget(self.video_label)
-
         self.start_button = QPushButton("Start Attendance", self)
         self.start_button.clicked.connect(self.start_attendance)
         self.layout.addWidget(self.start_button)
-
         self.add_student_button = QPushButton("Add New Student", self)
         self.add_student_button.clicked.connect(self.add_new_student)
         self.layout.addWidget(self.add_student_button)
-
         self.generate_encodings_button = QPushButton("Generate Encodings", self)
         self.generate_encodings_button.clicked.connect(self.generate_encodings)
         self.layout.addWidget(self.generate_encodings_button)
-
         self.status_label = QLabel("Status: Ready", self)
         self.layout.addWidget(self.status_label)
-
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
-
         self.initialize_firebase()
         self.load_encodings()
-
         self.imgBackground = cv2.imread('Resources/background.png')
         self.folderModePath = 'Resources/Modes'
         self.modePathList = os.listdir(self.folderModePath)
         self.imgModeList = [cv2.imread(os.path.join(self.folderModePath, path)) for path in self.modePathList]
-        
+
         self.modeType = 0
         self.counter = 0
         self.id = -1
         self.imgStudent = []
 
     def initialize_firebase(self):
-        cred = credentials.Certificate("serviceAccountkey.json")
+        cred = credentials.Certificate("serviceAccountkey (2).json")
         firebase_admin.initialize_app(cred, {
             'databaseURL': "https://face-attendance-realtime-bc190-default-rtdb.firebaseio.com/",
             'storageBucket': "face-attendance-realtime-bc190.appspot.com"
@@ -65,6 +63,11 @@ class FaceAttendanceApp(QMainWindow):
 
     def load_encodings(self):
         print("Loading Encodings...")
+        file = open("Encodefile.p", "rb")
+        self.encodeListKnownWithNames = pickle.load(file)
+        file.close()
+        self.encodeListKnown, self.studentNames = self.encodeListKnownWithNames
+        print("Encodings Loaded.")
         try:
             file = open("Encodefile.p", "rb")
             self.encodeListKnownWithNames = pickle.load(file)
@@ -85,10 +88,11 @@ class FaceAttendanceApp(QMainWindow):
         if ret:
             imgs = cv2.resize(img, (0, 0), None, 0.25, 0.25)
             imgs = cv2.cvtColor(imgs, cv2.COLOR_BGR2RGB)
-
             faceCurFrame = face_recognition.face_locations(imgs)
             encodeCurFrame = face_recognition.face_encodings(imgs, faceCurFrame)
 
+            self.imgBackground[162:162 + 480, 55:55 + 640] = img
+            self.imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
             imgBackground = self.imgBackground.copy()
             imgBackground[162:162 + 480, 55:55 + 640] = img
             imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
@@ -97,20 +101,18 @@ class FaceAttendanceApp(QMainWindow):
                 for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
                     matches = face_recognition.compare_faces(self.encodeListKnown, encodeFace)
                     faceDis = face_recognition.face_distance(self.encodeListKnown, encodeFace)
-
                     matchIndex = np.argmin(faceDis)
-
                     if matches[matchIndex]:
                         y1, x2, y2, x1 = faceLoc
                         y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
                         bbox = 55 + x1, 162 + y1, x2 - x1, y2 - y1
+                        self.imgBackground = self.cornerRect(self.imgBackground, bbox, rt=0)
                         imgBackground = self.cornerRect(imgBackground, bbox, rt=0)
                         id = self.studentNames[matchIndex]
 
                         if self.counter == 0:
                             self.counter = 1
                             self.modeType = 1
-
                 if self.counter != 0:
                     if self.counter == 1:
                         studentInfo = db.reference(f'Students/{id}').get()
@@ -130,46 +132,47 @@ class FaceAttendanceApp(QMainWindow):
                         else:
                             self.modeType = 3
                             self.counter = 0
+                            self.imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
                             imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
 
                     if self.modeType != 3:
                         if 10 < self.counter < 20:
                             self.modeType = 2
 
+                        self.imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
                         imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
 
                         if self.counter <= 10:
                             cv2.putText(imgBackground, str(studentInfo['total_attendance']), (861, 125),
                                         cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
-                            cv2.putText(imgBackground, str(studentInfo['major']), (1006, 550),
+                            cv2.putText(self.imgBackground, str(studentInfo['major']), (1006, 550),
                                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                            cv2.putText(imgBackground, str(id), (1006, 493),
+                            cv2.putText(self.imgBackground, str(id), (1006, 493),
                                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                            cv2.putText(imgBackground, str(studentInfo['year']), (1025, 625),
+                            cv2.putText(self.imgBackground, str(studentInfo['year']), (1025, 625),
                                         cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
-                            cv2.putText(imgBackground, str(studentInfo['starting_year']), (1125, 625),
+                            cv2.putText(self.imgBackground, str(studentInfo['starting_year']), (1125, 625),
                                         cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
 
-                            (w, h), _ = cv2.getTextSize(studentInfo['name'], cv2.FONT_HERSHEY_COMPLEX, 1, 1)
+                            (w, h), _=cv2.getTextSize(studentInfo['name'], cv2.FONT_HERSHEY_COMPLEX, 1, 1)
                             offset = (414 - w) // 2
-                            cv2.putText(imgBackground, str(studentInfo['name']), (808 + offset, 445),
+                            cv2.putText(self.imgBackground, str(studentInfo['name']), (808 + offset, 445),
                                         cv2.FONT_HERSHEY_COMPLEX, 1, (50, 50, 50), 1)
 
+                            self.imgBackground[175:175 + 216, 909:909 + 216] = self.imgStudent
                             imgBackground[175:175 + 216, 909:909 + 216] = self.imgStudent
 
-                        self.counter += 1
+                            self.counter += 1
 
-                        if self.counter >= 20:
-                            self.counter = 0
-                            self.modeType = 0
-                            studentInfo = []
-                            self.imgStudent = []
-                            imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
-            else:
-                self.modeType = 0
-                self.counter = 0
+                    if self.counter >= 20:
+                        self.counter = 0
+                        self.modeType = 0
+                        studentInfo = []
+                        self.imgStudent = []
+                        self.imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
+                        imgBackground[44:44 + 633, 808:808 + 414] = self.imgModeList[self.modeType]
 
-            self.display_image(imgBackground)
+
 
     def cornerRect(self, img, bbox, l=30, t=5, rt=1):
         x, y, w, h = bbox
@@ -197,6 +200,20 @@ class FaceAttendanceApp(QMainWindow):
         self.video_label.setPixmap(QPixmap.fromImage(img))
 
     def add_new_student(self):
+        # This is a simplified version. You might want to create a form for input.
+        name = "New Student"  # In a real app, you'd get this from user input
+        data = {
+            "id": 11,  # You should generate this dynamically
+            "name": name,
+            "major": "CSE",
+            "starting_year": 2024,
+            "total_attendance": 0,
+            "year": 1,
+            "last_attendence_time": "2024-09-12 00:54:34"
+        }
+        ref = db.reference('Students')
+        ref.child(name.replace(" ", "_")).set(data)
+        self.status_label.setText(f"Status: Added new student {name}")
         name, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter student name:')
         if ok and name:
             major, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter student major:')
@@ -218,16 +235,16 @@ class FaceAttendanceApp(QMainWindow):
 
                     # Prompt user to select an image for the new student
                     options = QFileDialog.Options()
-                    fileName, _ = QFileDialog.getOpenFileName(self, "Select Student Image", "", 
+                    fileName, _ = QFileDialog.getOpenFileName(self, "Select Student Image", "",
                                                               "Image Files (*.png *.jpg *.bmp)", options=options)
                     if fileName:
                         destination = f'Images/{name.replace(" ", "_")}.png'
                         cv2.imwrite(destination, cv2.imread(fileName))
-                        
+
                         # Upload image to Firebase Storage
                         blob = self.bucket.blob(destination)
                         blob.upload_from_filename(destination)
-                        
+
                         self.status_label.setText(f"Status: Added new student {name} with image")
                     else:
                         self.status_label.setText(f"Status: Added new student {name} without image")
@@ -240,7 +257,6 @@ class FaceAttendanceApp(QMainWindow):
         for path in pathList:
             imgList.append(cv2.imread(os.path.join(folderPath, path)))
             studentNames.append(os.path.splitext(path)[0])
-
             fileName = f'{folderPath}/{path}'
             bucket = storage.bucket()
             blob = bucket.blob(fileName)
@@ -258,7 +274,6 @@ class FaceAttendanceApp(QMainWindow):
         encodeListKnown = findEncodings(imgList)
         encodeListKnownWithNames = [encodeListKnown, studentNames]
         print("Encoding Complete")
-
         file = open("Encodefile.p", "wb")
         pickle.dump(encodeListKnownWithNames, file)
         file.close()
@@ -271,6 +286,7 @@ class FaceAttendanceApp(QMainWindow):
         if hasattr(self, 'cap'):
             self.cap.release()
         event.accept()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
